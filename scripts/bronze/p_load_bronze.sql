@@ -17,6 +17,26 @@ Usage Example:
 ===============================================================================
 */
 
+-- TO ACCESS THE DATA FROM AZURE CLOUD STORAGE
+
+CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'YourStrongPasswordHere!';
+CREATE DATABASE SCOPED CREDENTIAL MyBlobCredential
+WITH
+    IDENTITY = 'SHARED ACCESS SIGNATURE',
+    SECRET = 'MY SAS token';  -- Replace with your actual SAS token
+
+CREATE EXTERNAL DATA SOURCE MyBlobStorage -- Give any name of choice
+WITH (
+    TYPE = BLOB_STORAGE,
+    LOCATION = 'Azure Storage account name',  -- Your Azure Storage account name
+    CREDENTIAL = MyBlobCredential -- Give any name
+);
+-- If the previous SAS TOKEN expires, you can create a new one and extend the duration of use
+ALTER DATABASE SCOPED CREDENTIAL MyBlobCredential
+WITH IDENTITY = 'SHARED ACCESS SIGNATURE',
+SECRET = 'MY NEW SAS TOKEN'; -- If you re-created another SAS TOKEN
+
+
 CREATE OR ALTER PROCEDURE bronze.load_bronze AS
 BEGIN
     DECLARE @start_time DATETIME, @end_time DATETIME, @batch_start_time DATETIME, @batch_end_time DATETIME;
